@@ -1,0 +1,2464 @@
+
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AgriGuard - Smart Irrigation Prototype</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:Arial, sans-serif;
+    background:#f4f7f1;
+    color:#1d3320;
+}
+
+/* LOGIN */
+
+.login{
+    position:fixed;
+    inset:0;
+    background:linear-gradient(135deg,#16451e,#6fa05a);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:1000;
+}
+
+.login-box{
+    width:380px;
+    background:white;
+    padding:35px;
+    border-radius:18px;
+    box-shadow:0 15px 50px rgba(0,0,0,.25);
+}
+
+.logo{
+    text-align:center;
+    font-size:30px;
+    font-weight:bold;
+    color:#1f4a24;
+    margin-bottom:8px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#777;
+    margin-bottom:25px;
+}
+
+label{
+    display:block;
+    margin:12px 0 6px;
+    font-weight:bold;
+}
+
+input,select{
+    width:100%;
+    padding:11px;
+    border:1px solid #ccd6c8;
+    border-radius:8px;
+    font-size:14px;
+}
+
+button{
+    border:none;
+    padding:11px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.login-btn{
+    width:100%;
+    margin-top:20px;
+    background:#1f4a24;
+    color:white;
+}
+
+.login-btn:hover{
+    background:#123016;
+}
+
+.role{
+    display:flex;
+    gap:10px;
+    margin-bottom:15px;
+}
+
+.role button{
+    flex:1;
+    background:#e8eee5;
+}
+
+.role button.active{
+    background:#6fa05a;
+    color:white;
+}
+
+.error{
+    color:#b23a2e;
+    margin-top:10px;
+    display:none;
+}
+
+/* APP */
+
+.app{
+    display:none;
+    min-height:100vh;
+}
+
+.sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    bottom:0;
+    width:240px;
+    background:#173c1c;
+    color:white;
+    padding:25px 15px;
+}
+
+.brand{
+    font-size:24px;
+    font-weight:bold;
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.brand small{
+    display:block;
+    font-size:11px;
+    color:#a9c5a4;
+    margin-top:5px;
+}
+
+.nav button{
+    display:block;
+    width:100%;
+    text-align:left;
+    background:transparent;
+    color:white;
+    margin:5px 0;
+    padding:13px;
+    border-radius:8px;
+}
+
+.nav button:hover,
+.nav button.active{
+    background:#6fa05a;
+}
+
+.main{
+    margin-left:240px;
+    min-height:100vh;
+}
+
+.topbar{
+    background:white;
+    padding:20px 30px;
+    border-bottom:1px solid #ddd;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.topbar h1{
+    color:#1f4a24;
+}
+
+.content{
+    padding:25px;
+}
+
+/* VIEWS */
+
+.view{
+    display:none;
+}
+
+.view.active{
+    display:block;
+}
+
+.grid{
+    display:grid;
+    gap:18px;
+}
+
+.grid4{
+    grid-template-columns:repeat(4,1fr);
+}
+
+.grid2{
+    grid-template-columns:repeat(2,1fr);
+}
+
+.grid3{
+    grid-template-columns:repeat(3,1fr);
+}
+
+.card{
+    background:white;
+    border-radius:14px;
+    padding:20px;
+    box-shadow:0 3px 12px rgba(0,0,0,.07);
+}
+
+.card h3{
+    margin-bottom:12px;
+    color:#1f4a24;
+}
+
+.value{
+    font-size:32px;
+    font-weight:bold;
+    color:#1f4a24;
+}
+
+.unit{
+    color:#777;
+}
+
+.tag{
+    display:inline-block;
+    margin-top:8px;
+    padding:5px 9px;
+    border-radius:20px;
+    font-size:12px;
+    background:#dcefd7;
+    color:#23602b;
+}
+
+.warning{
+    background:#fff0d0;
+    color:#8a5a08;
+}
+
+.danger{
+    background:#ffe0dc;
+    color:#a32920;
+}
+
+/* GAUGE */
+
+.gauge{
+    width:170px;
+    height:170px;
+    border-radius:50%;
+    margin:15px auto;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:conic-gradient(#6fa05a 0deg,#6fa05a 165deg,#e3e8df 165deg);
+}
+
+.gauge-inner{
+    width:125px;
+    height:125px;
+    border-radius:50%;
+    background:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+    font-weight:bold;
+    color:#1f4a24;
+}
+
+/* TABLE */
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    padding:12px;
+    border-bottom:1px solid #e2e7df;
+    text-align:left;
+}
+
+th{
+    background:#f0f4ed;
+}
+
+.status-on{
+    color:#1c7a2b;
+    font-weight:bold;
+}
+
+.status-off{
+    color:#9b3028;
+    font-weight:bold;
+}
+
+/* BUTTONS */
+
+.primary{
+    background:#1f4a24;
+    color:white;
+}
+
+.secondary{
+    background:#e6ece2;
+    color:#1f4a24;
+}
+
+.danger-btn{
+    background:#b23a2e;
+    color:white;
+}
+
+button:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+}
+
+/* FORM */
+
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+.form-group{
+    margin-bottom:10px;
+}
+
+.full{
+    grid-column:1/-1;
+}
+
+/* RESULT */
+
+.result{
+    margin-top:20px;
+    padding:18px;
+    border-radius:10px;
+    background:#edf6e9;
+    display:none;
+}
+
+.result h3{
+    margin-bottom:10px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px){
+
+    .sidebar{
+        width:190px;
+    }
+
+    .main{
+        margin-left:190px;
+    }
+
+    .grid4,
+    .grid3{
+        grid-template-columns:1fr 1fr;
+    }
+}
+
+@media(max-width:650px){
+
+    .sidebar{
+        position:relative;
+        width:100%;
+    }
+
+    .main{
+        margin-left:0;
+    }
+
+    .grid4,
+    .grid3,
+    .grid2,
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .topbar{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:10px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ================= LOGIN ================= -->
+
+<div class="login" id="loginPage">
+
+    <div class="login-box">
+
+        <div class="logo">🌱 AgriGuard</div>
+
+        <div class="subtitle">
+            Smart Irrigation Portal
+        </div>
+
+        <div class="role">
+
+            <button id="farmerRole"
+                    class="active"
+                    onclick="selectRole('Farmer')">
+                Farmer
+            </button>
+
+            <button id="adminRole"
+                    onclick="selectRole('Admin')">
+                Admin
+            </button>
+
+        </div>
+
+        <label>Username</label>
+
+        <input
+            type="text"
+            id="username"
+            placeholder="Enter username"
+        >
+
+        <label>Password</label>
+
+        <input
+            type="password"
+            id="password"
+            placeholder="Enter password"
+        >
+
+        <div class="error" id="loginError">
+            Please enter username and password.
+        </div>
+
+        <button
+            class="login-btn"
+            onclick="login()">
+            Login
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- ================= APPLICATION ================= -->
+
+<div class="app" id="app">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            🌱 AgriGuard
+            <small>Smart Irrigation Prototype</small>
+        </div>
+
+        <div class="nav">
+
+            <button
+                class="active"
+                onclick="showPage('dashboard',this)">
+                🏠 Dashboard
+            </button>
+
+            <button
+                onclick="showPage('sensors',this)">
+                📡 Sensor Monitoring
+            </button>
+
+            <button
+                onclick="showPage('prediction',this)">
+                🤖 ML Prediction
+            </button>
+
+            <button
+                onclick="showPage('irrigation',this)">
+                💧 Irrigation Control
+            </button>
+
+            <button
+                onclick="showPage('alerts',this)">
+                📩 SMS & Voice Alerts
+            </button>
+
+            <button
+                onclick="showPage('history',this)">
+                📋 Crop History
+            </button>
+
+            <button
+                onclick="showPage('reports',this)">
+                📊 Reports
+            </button>
+
+            <button
+                onclick="showPage('farmers',this)">
+                👨‍🌾 Farmer Registration
+            </button>
+
+            <button
+                onclick="logout()">
+                🚪 Logout
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+        <div class="topbar">
+
+            <div>
+                <h1 id="pageTitle">Dashboard</h1>
+                <p id="welcomeText">
+                    Smart irrigation monitoring system
+                </p>
+            </div>
+
+            <div>
+                <b id="loggedUser">Guest</b>
+            </div>
+
+        </div>
+
+
+        <div class="content">
+
+
+<!-- ================= DASHBOARD ================= -->
+
+<section
+    id="dashboard"
+    class="view active">
+
+    <div class="grid grid4">
+
+        <div class="card">
+            <h3>Soil Moisture</h3>
+            <div>
+                <span class="value" id="moisture">
+                    46
+                </span>
+                <span class="unit">%</span>
+            </div>
+            <span class="tag" id="moistureTag">
+                Healthy
+            </span>
+        </div>
+
+
+        <div class="card">
+            <h3>Temperature</h3>
+            <div>
+                <span class="value" id="temperature">
+                    29.4
+                </span>
+                <span class="unit">°C</span>
+            </div>
+            <span class="tag">
+                Normal
+            </span>
+        </div>
+
+
+        <div class="card">
+            <h3>Humidity</h3>
+            <div>
+                <span class="value" id="humidity">
+                    61
+                </span>
+                <span class="unit">%</span>
+            </div>
+            <span class="tag">
+                Stable
+            </span>
+        </div>
+
+
+        <div class="card">
+            <h3>Water Tank</h3>
+            <div>
+                <span class="value" id="tank">
+                    82
+                </span>
+                <span class="unit">%</span>
+            </div>
+            <span class="tag">
+                Sufficient
+            </span>
+        </div>
+
+    </div>
+
+
+    <br>
+
+
+    <div class="grid grid2">
+
+        <div class="card">
+
+            <h3>Field Moisture Gauge</h3>
+
+            <div
+                class="gauge"
+                id="gauge">
+
+                <div
+                    class="gauge-inner"
+                    id="gaugeText">
+                    46%
+                </div>
+
+            </div>
+
+            <p>
+                Crop:
+                <b id="cropName">Paddy</b>
+            </p>
+
+            <p>
+                Pump:
+                <b id="pumpStatus"
+                   class="status-off">
+                    OFF
+                </b>
+            </p>
+
+            <p>
+                Rain:
+                <b id="rainStatus">
+                    No
+                </b>
+            </p>
+
+            <p>
+                ML Recommendation:
+                <b id="recommendation">
+                    No action needed
+                </b>
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Crop Status</h3>
+
+            <h2 id="cropStatus">
+                Healthy
+            </h2>
+
+            <br>
+
+            <p>
+                Growth Stage:
+                <b>Vegetative</b>
+            </p>
+
+            <p>
+                Water Requirement:
+                <b>Medium</b>
+            </p>
+
+            <p>
+                Days Since Sowing:
+                <b id="days">
+                    32
+                </b>
+            </p>
+
+            <br>
+
+            <h3>Recent Alerts</h3>
+
+            <div id="recentAlerts">
+                No alerts yet.
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= SENSORS ================= -->
+
+<section
+    id="sensors"
+    class="view">
+
+    <h2>Sensor Monitoring</h2>
+
+    <p>
+        Simulated live readings from field sensors.
+    </p>
+
+    <br>
+
+    <div class="grid grid4">
+
+        <div class="card">
+            <h3>🌱 Soil Moisture</h3>
+            <div class="value"
+                 id="sensorMoisture">
+                46%
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🌡 Temperature</h3>
+            <div class="value"
+                 id="sensorTemp">
+                29.4°C
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>💧 Humidity</h3>
+            <div class="value"
+                 id="sensorHumidity">
+                61%
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🌧 Rain Sensor</h3>
+            <div class="value"
+                 id="sensorRain">
+                Dry
+            </div>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= PREDICTION ================= -->
+
+<section
+    id="prediction"
+    class="view">
+
+    <h2>Machine Learning Prediction</h2>
+
+    <p>
+        Prototype irrigation prediction engine.
+    </p>
+
+    <br>
+
+    <div class="grid grid2">
+
+        <div class="card">
+
+            <h3>Current Prediction</h3>
+
+            <h2 id="predictionTitle">
+                No Irrigation Needed
+            </h2>
+
+            <br>
+
+            <p>
+                Irrigation Needed:
+                <b id="predictionNeed">
+                    No
+                </b>
+            </p>
+
+            <p>
+                Recommended Water:
+                <b id="predictionWater">
+                    0 L
+                </b>
+            </p>
+
+            <p>
+                Best Time:
+                <b id="predictionTime">
+                    Tomorrow 6:00 AM
+                </b>
+            </p>
+
+            <p>
+                Model Confidence:
+                <b id="predictionConfidence">
+                    92%
+                </b>
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Model Information</h3>
+
+            <p>
+                Active Algorithm:
+                <b>Random Forest</b>
+            </p>
+
+            <p>
+                Fallback:
+                <b>Decision Tree</b>
+            </p>
+
+            <p>
+                Training Samples:
+                <b>2,480</b>
+            </p>
+
+            <p>
+                Reported Accuracy:
+                <b>92%</b>
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <br>
+
+
+    <div class="card">
+
+        <h3>Manual Prediction Tester</h3>
+
+        <div class="form-grid">
+
+            <div class="form-group">
+                <label>Soil Moisture (%)</label>
+
+                <input
+                    type="number"
+                    id="manualMoisture"
+                    placeholder="Example: 28">
+            </div>
+
+
+            <div class="form-group">
+                <label>Temperature (°C)</label>
+
+                <input
+                    type="number"
+                    id="manualTemp"
+                    placeholder="Example: 31">
+            </div>
+
+
+            <div class="form-group">
+                <label>Humidity (%)</label>
+
+                <input
+                    type="number"
+                    id="manualHumidity"
+                    placeholder="Example: 55">
+            </div>
+
+
+            <div class="form-group">
+
+                <label>Crop</label>
+
+                <select id="manualCrop">
+
+                    <option>Paddy</option>
+                    <option>Sugarcane</option>
+                    <option>Cotton</option>
+                    <option>Maize</option>
+                    <option>Groundnut</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>Rain Detected?</label>
+
+                <select id="manualRain">
+
+                    <option value="no">
+                        No
+                    </option>
+
+                    <option value="yes">
+                        Yes
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>&nbsp;</label>
+
+                <button
+                    class="primary"
+                    onclick="manualPrediction()">
+                    Run Prediction
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div
+            class="result"
+            id="manualResult">
+
+            <h3 id="manualHeadline">
+                Prediction
+            </h3>
+
+            <p>
+                Irrigation:
+                <b id="manualNeed"></b>
+            </p>
+
+            <p>
+                Water Quantity:
+                <b id="manualWater"></b>
+            </p>
+
+            <p>
+                Best Time:
+                <b id="manualTime"></b>
+            </p>
+
+            <p>
+                Confidence:
+                <b id="manualConfidence"></b>
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= IRRIGATION ================= -->
+
+<section
+    id="irrigation"
+    class="view">
+
+    <h2>Irrigation Control</h2>
+
+    <br>
+
+    <div class="grid grid2">
+
+        <div class="card">
+
+            <h3>Automatic Irrigation</h3>
+
+            <p>
+                Pump is controlled automatically
+                according to soil moisture.
+            </p>
+
+            <br>
+
+            <label>
+                <input
+                    type="checkbox"
+                    id="autoMode"
+                    checked
+                    onchange="changeAutoMode()"
+                    style="width:auto">
+
+                Automatic Mode
+            </label>
+
+            <br>
+
+            <h2>
+                Pump:
+                <span
+                    id="bigPumpStatus"
+                    class="status-off">
+                    OFF
+                </span>
+            </h2>
+
+            <br>
+
+            <button
+                class="primary"
+                id="pumpOn"
+                onclick="pumpOn()">
+                Turn ON
+            </button>
+
+            <button
+                class="secondary"
+                id="pumpOff"
+                onclick="pumpOff()">
+                Turn OFF
+            </button>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Pump Activity Log</h3>
+
+            <div id="pumpLog">
+                No pump activity yet.
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= ALERTS ================= -->
+
+<section
+    id="alerts"
+    class="view">
+
+    <h2>SMS & Voice Call Alerts</h2>
+
+    <br>
+
+    <div class="grid grid2">
+
+        <div class="card">
+
+            <h3>📩 SMS History</h3>
+
+            <div id="smsLog">
+                No SMS sent yet.
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>📞 Voice Call History</h3>
+
+            <div id="voiceLog">
+                No voice calls yet.
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= HISTORY ================= -->
+
+<section
+    id="history"
+    class="view">
+
+    <h2>Crop History</h2>
+
+    <br>
+
+    <div class="card">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Date</th>
+                    <th>Moisture</th>
+                    <th>Pump</th>
+                    <th>Water Used</th>
+                    <th>Rain</th>
+                    <th>Status</th>
+                </tr>
+
+            </thead>
+
+            <tbody id="historyTable">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- ================= REPORTS ================= -->
+
+<section
+    id="reports"
+    class="view">
+
+    <h2>Reports & Water Savings</h2>
+
+    <br>
+
+    <div class="grid grid3">
+
+        <div class="card">
+
+            <h3>Total Water Used</h3>
+
+            <span
+                class="value"
+                id="totalWater">
+                0
+            </span>
+
+            L
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Estimated Water Saved</h3>
+
+            <span
+                class="value"
+                id="waterSaved">
+                20
+            </span>
+
+            %
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Pump Running Time</h3>
+
+            <span
+                class="value"
+                id="runtime">
+                0
+            </span>
+
+            min
+
+        </div>
+
+    </div>
+
+    <br>
+
+    <div class="card">
+
+        <h3>System Efficiency</h3>
+
+        <p>
+            Irrigation Cycles:
+            <b id="cycles">0</b>
+        </p>
+
+        <p>
+            Alerts Delivered:
+            <b id="alertsCount">0</b>
+        </p>
+
+        <p>
+            Prediction Accuracy:
+            <b>92%</b>
+        </p>
+
+        <p>
+            System Uptime:
+            <b>100%</b>
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- ================= FARMERS ================= -->
+
+<section
+    id="farmers"
+    class="view">
+
+    <h2>Farmer Registration</h2>
+
+    <br>
+
+    <div class="grid grid2">
+
+        <div class="card">
+
+            <h3>Add New Farmer</h3>
+
+            <label>Name</label>
+
+            <input
+                id="farmerName"
+                placeholder="Farmer name">
+
+
+            <label>Mobile Number</label>
+
+            <input
+                id="farmerMobile"
+                placeholder="Mobile number">
+
+
+            <label>Village</label>
+
+            <input
+                id="farmerVillage"
+                placeholder="Village">
+
+
+            <label>Crop Type</label>
+
+            <select id="farmerCrop">
+
+                <option>Paddy</option>
+                <option>Sugarcane</option>
+                <option>Cotton</option>
+                <option>Maize</option>
+                <option>Groundnut</option>
+
+            </select>
+
+
+            <label>Land Area</label>
+
+            <input
+                id="farmerLand"
+                placeholder="Example: 2.5">
+
+
+            <br>
+
+            <button
+                class="primary"
+                onclick="addFarmer()">
+
+                Register Farmer
+
+            </button>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Registered Farmers</h3>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Name</th>
+                        <th>Village</th>
+                        <th>Crop</th>
+                        <th>Land</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="farmerTable">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script>
+
+/* =========================================
+   APPLICATION STATE
+========================================= */
+
+let selectedRole = "Farmer";
+
+let moisture = 46;
+let temperature = 29.4;
+let humidity = 61;
+let tank = 82;
+
+let rain = false;
+
+let pump = false;
+
+let autoMode = true;
+
+let cycles = 0;
+
+let totalWater = 0;
+
+let runtime = 0;
+
+let days = 32;
+
+let farmers = [
+
+    {
+        name:"Madhumitha",
+        village:"Ranipet",
+        crop:"Paddy",
+        land:"2.0"
+    },
+
+    {
+        name:"Manisha",
+        village:"Vellore",
+        crop:"Sugarcane",
+        land:"3.2"
+    },
+
+    {
+        name:"Kavipriya",
+        village:"Arakkonam",
+        crop:"Cotton",
+        land:"1.8"
+    }
+
+];
+
+let pumpLogs = [];
+
+let smsLogs = [];
+
+let voiceLogs = [];
+
+let history = [];
+
+
+/* =========================================
+   LOGIN
+========================================= */
+
+function selectRole(role){
+
+    selectedRole = role;
+
+    document
+        .getElementById("farmerRole")
+        .classList.remove("active");
+
+    document
+        .getElementById("adminRole")
+        .classList.remove("active");
+
+    if(role === "Farmer"){
+
+        document
+            .getElementById("farmerRole")
+            .classList.add("active");
+
+    }else{
+
+        document
+            .getElementById("adminRole")
+            .classList.add("active");
+
+    }
+
+}
+
+
+function login(){
+
+    let user =
+        document
+        .getElementById("username")
+        .value
+        .trim();
+
+    let password =
+        document
+        .getElementById("password")
+        .value
+        .trim();
+
+
+    if(user === "" || password === ""){
+
+        document
+            .getElementById("loginError")
+            .style.display = "block";
+
+        return;
+
+    }
+
+
+    document
+        .getElementById("loginError")
+        .style.display = "none";
+
+
+    document
+        .getElementById("loginPage")
+        .style.display = "none";
+
+
+    document
+        .getElementById("app")
+        .style.display = "block";
+
+
+    document
+        .getElementById("loggedUser")
+        .textContent =
+        user + " (" + selectedRole + ")";
+
+
+    updateAll();
+
+}
+
+
+function logout(){
+
+    document
+        .getElementById("app")
+        .style.display = "none";
+
+    document
+        .getElementById("loginPage")
+        .style.display = "flex";
+
+}
+
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
+function showPage(page,button){
+
+    document
+        .querySelectorAll(".view")
+        .forEach(v=>{
+            v.classList.remove("active");
+        });
+
+
+    document
+        .getElementById(page)
+        .classList.add("active");
+
+
+    document
+        .querySelectorAll(".nav button")
+        .forEach(b=>{
+            b.classList.remove("active");
+        });
+
+
+    button.classList.add("active");
+
+
+    let titles = {
+
+        dashboard:"Dashboard",
+
+        sensors:"Sensor Monitoring",
+
+        prediction:"ML Prediction",
+
+        irrigation:"Irrigation Control",
+
+        alerts:"SMS & Voice Alerts",
+
+        history:"Crop History",
+
+        reports:"Reports",
+
+        farmers:"Farmer Registration"
+
+    };
+
+
+    document
+        .getElementById("pageTitle")
+        .textContent =
+        titles[page];
+
+}
+
+
+/* =========================================
+   DASHBOARD
+========================================= */
+
+function updateDashboard(){
+
+    document
+        .getElementById("moisture")
+        .textContent =
+        Math.round(moisture);
+
+
+    document
+        .getElementById("temperature")
+        .textContent =
+        temperature.toFixed(1);
+
+
+    document
+        .getElementById("humidity")
+        .textContent =
+        Math.round(humidity);
+
+
+    document
+        .getElementById("tank")
+        .textContent =
+        Math.round(tank);
+
+
+    document
+        .getElementById("sensorMoisture")
+        .textContent =
+        Math.round(moisture) + "%";
+
+
+    document
+        .getElementById("sensorTemp")
+        .textContent =
+        temperature.toFixed(1) + "°C";
+
+
+    document
+        .getElementById("sensorHumidity")
+        .textContent =
+        Math.round(humidity) + "%";
+
+
+    document
+        .getElementById("sensorRain")
+        .textContent =
+        rain ? "Rain Detected" : "Dry";
+
+
+    document
+        .getElementById("rainStatus")
+        .textContent =
+        rain ? "Yes" : "No";
+
+
+    let tag =
+        document.getElementById("moistureTag");
+
+
+    if(moisture < 30){
+
+        tag.textContent =
+            "Low - Irrigation Needed";
+
+        tag.className =
+            "tag danger";
+
+    }
+
+    else if(moisture < 45){
+
+        tag.textContent =
+            "Moderate";
+
+        tag.className =
+            "tag warning";
+
+    }
+
+    else{
+
+        tag.textContent =
+            "Healthy";
+
+        tag.className =
+            "tag";
+
+    }
+
+
+    let angle =
+        Math.round(moisture * 3.6);
+
+
+    document
+        .getElementById("gauge")
+        .style.background =
+        `conic-gradient(
+            #6fa05a ${angle}deg,
+            #e3e8df ${angle}deg
+        )`;
+
+
+    document
+        .getElementById("gaugeText")
+        .textContent =
+        Math.round(moisture) + "%";
+
+
+    document
+        .getElementById("pumpStatus")
+        .textContent =
+        pump ? "ON" : "OFF";
+
+
+    document
+        .getElementById("pumpStatus")
+        .className =
+        pump ? "status-on" : "status-off";
+
+
+    document
+        .getElementById("bigPumpStatus")
+        .textContent =
+        pump ? "ON" : "OFF";
+
+
+    document
+        .getElementById("bigPumpStatus")
+        .className =
+        pump ? "status-on" : "status-off";
+
+
+    document
+        .getElementById("recommendation")
+        .textContent =
+        moisture < 32 && !rain
+        ? "Irrigate Now"
+        : "No Action Needed";
+
+
+    document
+        .getElementById("cropStatus")
+        .textContent =
+        moisture < 25
+        ? "Needs Attention"
+        : "Healthy";
+
+
+    document
+        .getElementById("days")
+        .textContent =
+        days;
+
+
+    updatePrediction();
+
+}
+
+
+/* =========================================
+   PREDICTION
+========================================= */
+
+function updatePrediction(){
+
+    let need =
+        moisture < 32 && !rain;
+
+
+    let water =
+        need
+        ? Math.round((32-moisture)*6+40)
+        : 0;
+
+
+    document
+        .getElementById("predictionTitle")
+        .textContent =
+        need
+        ? "Irrigation Recommended"
+        : "No Irrigation Needed";
+
+
+    document
+        .getElementById("predictionNeed")
+        .textContent =
+        need ? "Yes" : "No";
+
+
+    document
+        .getElementById("predictionWater")
+        .textContent =
+        need ? water+" L" : "0 L";
+
+
+    document
+        .getElementById("predictionTime")
+        .textContent =
+        need
+        ? "Now"
+        : "Tomorrow 6:00 AM";
+
+
+    document
+        .getElementById("predictionConfidence")
+        .textContent =
+        (89 + Math.floor(Math.random()*8)) + "%";
+
+}
+
+
+/* =========================================
+   MANUAL PREDICTION
+========================================= */
+
+function manualPrediction(){
+
+    let m =
+        parseFloat(
+            document
+            .getElementById("manualMoisture")
+            .value
+        );
+
+
+    let temp =
+        parseFloat(
+            document
+            .getElementById("manualTemp")
+            .value
+        );
+
+
+    let hum =
+        parseFloat(
+            document
+            .getElementById("manualHumidity")
+            .value
+        );
+
+
+    let isRain =
+        document
+        .getElementById("manualRain")
+        .value === "yes";
+
+
+    if(
+        isNaN(m) ||
+        isNaN(temp) ||
+        isNaN(hum)
+    ){
+
+        alert(
+            "Please enter moisture, temperature and humidity."
+        );
+
+        return;
+
+    }
+
+
+    let need =
+        m < 35 && !isRain;
+
+
+    let water =
+        need
+        ? Math.round(
+            (35-m)*6 +
+            (temp>32 ? 15 : 5) +
+            35
+          )
+        : 0;
+
+
+    document
+        .getElementById("manualHeadline")
+        .textContent =
+        isRain
+        ? "🌧 Rain Detected - No Irrigation"
+        : need
+        ? "💧 Irrigation Recommended"
+        : "✓ No Irrigation Needed";
+
+
+    document
+        .getElementById("manualNeed")
+        .textContent =
+        need ? "YES" : "NO";
+
+
+    document
+        .getElementById("manualWater")
+        .textContent =
+        need ? water+" L" : "0 L";
+
+
+    document
+        .getElementById("manualTime")
+        .textContent =
+        need
+        ? (m < 20 ? "Immediately" : "Within 2 Hours")
+        : "Not Required";
+
+
+    document
+        .getElementById("manualConfidence")
+        .textContent =
+        (85 + Math.floor(Math.random()*11)) + "%";
+
+
+    document
+        .getElementById("manualResult")
+        .style.display =
+        "block";
+
+}
+
+
+/* =========================================
+   PUMP
+========================================= */
+
+function changeAutoMode(){
+
+    autoMode =
+        document
+        .getElementById("autoMode")
+        .checked;
+
+
+    updatePumpButtons();
+
+}
+
+
+function updatePumpButtons(){
+
+    document
+        .getElementById("pumpOn")
+        .disabled =
+        autoMode;
+
+
+    document
+        .getElementById("pumpOff")
+        .disabled =
+        autoMode;
+
+}
+
+
+function pumpOn(){
+
+    if(autoMode){
+
+        alert(
+            "Turn OFF Automatic Mode first."
+        );
+
+        return;
+
+    }
+
+
+    setPump(true,"Manual override");
+
+}
+
+
+function pumpOff(){
+
+    if(autoMode){
+
+        alert(
+            "Turn OFF Automatic Mode first."
+        );
+
+        return;
+
+    }
+
+
+    setPump(false,"Manual override");
+
+}
+
+
+function setPump(status,reason){
+
+    if(pump === status)
+        return;
+
+
+    pump = status;
+
+
+    let time =
+        new Date()
+        .toLocaleTimeString();
+
+
+    pumpLogs.push({
+
+        status:
+            status ? "ON" : "OFF",
+
+        reason:reason,
+
+        time:time
+
+    });
+
+
+    if(status){
+
+        cycles++;
+
+        let farmer =
+            farmers[0];
+
+
+        smsLogs.push({
+
+            message:
+            `Smart Irrigation Alert:
+            ${farmer.crop} field irrigation started.
+            Soil moisture: ${Math.round(moisture)}%`,
+
+            time:time
+
+        });
+
+
+        voiceLogs.push({
+
+            message:
+            `Your ${farmer.crop} field requires irrigation. Pump has started.`,
+
+            time:time
+
+        });
+
+    }
+
+
+    updateAll();
+
+}
+
+
+/* =========================================
+   SIMULATED SENSOR
+========================================= */
+
+function simulateSensors(){
+
+    rain =
+        Math.random() < 0.08;
+
+
+    if(rain){
+
+        moisture +=
+            4 + Math.random()*3;
+
+    }
+
+    else if(pump){
+
+        moisture +=
+            3 + Math.random()*2;
+
+    }
+
+    else{
+
+        moisture -=
+            0.8 + Math.random()*1.4;
+
+    }
+
+
+    moisture =
+        Math.max(
+            0,
+            Math.min(100,moisture)
+        );
+
+
+    temperature +=
+        (Math.random()-.5)*.8;
+
+
+    temperature =
+        Math.max(
+            22,
+            Math.min(38,temperature)
+        );
+
+
+    humidity +=
+        (Math.random()-.5)*3;
+
+
+    humidity =
+        Math.max(
+            30,
+            Math.min(90,humidity)
+        );
+
+
+    if(pump){
+
+        tank -= .6;
+
+        totalWater += 2.4;
+
+        runtime++;
+
+    }
+
+
+    if(autoMode){
+
+        if(
+            moisture < 30 &&
+            !pump
+        ){
+
+            setPump(
+                true,
+                "Automatic ML prediction"
+            );
+
+        }
+
+
+        if(
+            moisture > 55 &&
+            pump
+        ){
+
+            setPump(
+                false,
+                "Moisture sufficient"
+            );
+
+        }
+
+    }
+
+
+    days += .01;
+
+
+    updateAll();
+
+}
+
+
+/* =========================================
+   FARMER REGISTRATION
+========================================= */
+
+function addFarmer(){
+
+    let name =
+        document
+        .getElementById("farmerName")
+        .value
+        .trim();
+
+
+    let mobile =
+        document
+        .getElementById("farmerMobile")
+        .value
+        .trim();
+
+
+    let village =
+        document
+        .getElementById("farmerVillage")
+        .value
+        .trim();
+
+
+    let crop =
+        document
+        .getElementById("farmerCrop")
+        .value;
+
+
+    let land =
+        document
+        .getElementById("farmerLand")
+        .value
+        .trim();
+
+
+    if(!name || !village){
+
+        alert(
+            "Please enter farmer name and village."
+        );
+
+        return;
+
+    }
+
+
+    farmers.push({
+
+        name:name,
+
+        village:village,
+
+        crop:crop,
+
+        land:land || "-"
+
+    });
+
+
+    document
+        .getElementById("farmerName")
+        .value="";
+
+
+    document
+        .getElementById("farmerMobile")
+        .value="";
+
+
+    document
+        .getElementById("farmerVillage")
+        .value="";
+
+
+    document
+        .getElementById("farmerLand")
+        .value="";
+
+
+    renderFarmers();
+
+}
+
+
+function renderFarmers(){
+
+    let table =
+        document
+        .getElementById("farmerTable");
+
+
+    table.innerHTML =
+        farmers
+        .map(f=>`
+
+            <tr>
+
+                <td>${f.name}</td>
+
+                <td>${f.village}</td>
+
+                <td>${f.crop}</td>
+
+                <td>${f.land} ac</td>
+
+            </tr>
+
+        `)
+        .join("");
+
+}
+
+
+/* =========================================
+   LOGS
+========================================= */
+
+function renderLogs(){
+
+    document
+        .getElementById("pumpLog")
+        .innerHTML =
+        pumpLogs.length
+
+        ?
+
+        pumpLogs
+        .slice()
+        .reverse()
+        .map(x=>`
+
+            <p>
+                🔌 Pump
+                <b>${x.status}</b>
+                -
+                ${x.reason}
+                <small>${x.time}</small>
+            </p>
+
+        `)
+        .join("")
+
+        :
+
+        "No pump activity yet.";
+
+
+    document
+        .getElementById("smsLog")
+        .innerHTML =
+        smsLogs.length
+
+        ?
+
+        smsLogs
+        .slice()
+        .reverse()
+        .map(x=>`
+
+            <p>
+                📩 ${x.message}
+                <small>${x.time}</small>
+            </p>
+
+        `)
+        .join("")
+
+        :
+
+        "No SMS sent yet.";
+
+
+    document
+        .getElementById("voiceLog")
+        .innerHTML =
+        voiceLogs.length
+
+        ?
+
+        voiceLogs
+        .slice()
+        .reverse()
+        .map(x=>`
+
+            <p>
+                📞 ${x.message}
+                <small>${x.time}</small>
+            </p>
+
+        `)
+        .join("")
+
+        :
+
+        "No voice calls yet.";
+
+
+    document
+        .getElementById("recentAlerts")
+        .innerHTML =
+        smsLogs.length
+        ? smsLogs[smsLogs.length-1].message
+        : "No alerts yet.";
+
+}
+
+
+/* =========================================
+   HISTORY
+========================================= */
+
+function renderHistory(){
+
+    let table =
+        document
+        .getElementById("historyTable");
+
+
+    if(history.length === 0){
+
+        table.innerHTML = `
+
+            <tr>
+
+                <td colspan="6">
+                    Simulation history will appear here.
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    table.innerHTML =
+        history
+        .slice()
+        .reverse()
+        .map(x=>`
+
+            <tr>
+
+                <td>${x.date}</td>
+
+                <td>${x.moisture}%</td>
+
+                <td>${x.pump}</td>
+
+                <td>${x.water} L</td>
+
+                <td>${x.rain}</td>
+
+                <td>${x.status}</td>
+
+            </tr>
+
+        `)
+        .join("");
+
+}
+
+
+/* =========================================
+   REPORTS
+========================================= */
+
+function updateReports(){
+
+    document
+        .getElementById("totalWater")
+        .textContent =
+        Math.round(totalWater);
+
+
+    document
+        .getElementById("waterSaved")
+        .textContent =
+        Math.min(
+            45,
+            Math.round(20 + cycles*1.5)
+        );
+
+
+    document
+        .getElementById("runtime")
+        .textContent =
+        Math.round(runtime);
+
+
+    document
+        .getElementById("cycles")
+        .textContent =
+        cycles;
+
+
+    document
+        .getElementById("alertsCount")
+        .textContent =
+        smsLogs.length +
+        voiceLogs.length;
+
+}
+
+
+/* =========================================
+   UPDATE EVERYTHING
+========================================= */
+
+function updateAll(){
+
+    updateDashboard();
+
+    updatePumpButtons();
+
+    renderLogs();
+
+    renderHistory();
+
+    renderFarmers();
+
+    updateReports();
+
+}
+
+
+/* =========================================
+   START SIMULATION
+========================================= */
+
+setInterval(
+    simulateSensors,
+    3500
+);
+
+
+/* INITIAL FARMER TABLE */
+
+renderFarmers();
+
+</script>
+
+</body>
+</html>
+index.html
+Displaying index.html.
